@@ -1087,7 +1087,7 @@ function User(data) {
 
     this.name = data.name || '';
     this.urlName = data.url_name || '';
-    this.profileImageUrl = data.profile_image_url || '';
+    this.profileImageUrl = data.profile_image_url || data.icon_url || '';
     this.description = data.description || '';
     this.websiteUrl = data.website_url || '';
     this.organization = data.organization || '';
