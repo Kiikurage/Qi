@@ -1,0 +1,26 @@
+{
+  "name": "Qi",
+  "main": "Qi.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/kikura-yuichiro/Qi",
+  "authors": [
+    "Kikura Yuichiro <y.kikura@gmail.com>"
+  ],
+  "description": "Qiita API Wrapper module for Javascript",
+  "keywords": [
+    "Qiita",
+    "javascript"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "es6-promise": "~1.0.0",
+    "fetch": "~0.2.1"
+  }
+}
