@@ -18,25 +18,14 @@ bower install Qi
 
 詳しい使い方はWikiを参照(未着手)
 
-##構成
-
-```
-------Qi.js   			// メインファイル
-	|
-	|-src 				// ソースファイル群
-	|
-	|-bower_components	// 依存コンポーネント
-
-```
-
 ##対応状況と課題
 
 - Qiita API v1.0のみ対応
-- `POST /api/v1/items``PUT /api/v1/items/:uuid`に未対応
+- `POST /api/v1/items`,`PUT /api/v1/items/:uuid`に未対応
 - ページングに未対応(下記「問題点」を参照)
 - ドキュメント整備
 
 ##問題点
 
 - Qiita API v2.0 は全体的にAccess-Control-Allow-Originが指定されておらず、ブラウザからのアクセスは不可能
-- ページングはResponseヘッダのLinkヘッダを参照する必要があるが、`Access-Control-Expose-Headers:Link`がレスポンスに設定されておらず、アクセス出来ない。
+- ページングを行うにはレスポンスのLinkヘッダを参照する必要があるが、`Access-Control-Expose-Headers:Link`がレスポンスに設定されておらず、アクセス出来ない。
