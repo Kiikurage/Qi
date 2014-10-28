@@ -7,7 +7,7 @@ v0.0
 ##インストール
 
 ```bash
-bower install Qi
+bower install qi-js
 ```
 
 ##使用方法
