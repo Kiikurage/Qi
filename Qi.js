@@ -974,6 +974,20 @@ function encodeURLParams(params) {
     }).join('&').replace(/%20/g, '+')
 }
 
+function dayFormat(d) {
+    var Y = d.getFullYear(),
+        M = d.getMonth() + 1,
+        D = d.getDate(),
+        h = d.getHours(),
+        m = d.getMinutes();
+
+    return padding(Y, 4) + '/' + padding(M, 2) + ':' + padding(D, 2) + ' ' + padding(h, 2) + ':' + padding(m, 2)
+}
+
+function padding(num, digit) {
+    return ((new Array(digit)).join(" ") + num).substr(-digit)
+}
+
 (function() {
     var token = null,
         authorizingPromise = null,
@@ -1218,6 +1232,9 @@ function Item(data) {
     this.private = data.tweet || false;
     this.stocked = data.tweet || false;
     this.comments = data.comments ? data.comments.map(Qi.Comment) : [];
+
+    this.created.word2 = this.created.date ? dayFormat(this.created.date) : '';
+    this.updated.word2 = this.updated.date ? dayFormat(this.updated.date) : '';
 }
 Qi.Item = Item;
 

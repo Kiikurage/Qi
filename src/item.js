@@ -28,6 +28,9 @@ function Item(data) {
     this.private = data.tweet || false;
     this.stocked = data.tweet || false;
     this.comments = data.comments ? data.comments.map(Qi.Comment) : [];
+
+    this.created.word2 = this.created.date ? dayFormat(this.created.date) : '';
+    this.updated.word2 = this.updated.date ? dayFormat(this.updated.date) : '';
 }
 Qi.Item = Item;
 

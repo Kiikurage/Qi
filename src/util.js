@@ -30,3 +30,17 @@ function encodeURLParams(params) {
         return encodeURIComponent(name) + '=' + encodeURIComponent(value)
     }).join('&').replace(/%20/g, '+')
 }
+
+function dayFormat(d) {
+    var Y = d.getFullYear(),
+        M = d.getMonth() + 1,
+        D = d.getDate(),
+        h = d.getHours(),
+        m = d.getMinutes();
+
+    return padding(Y, 4) + '/' + padding(M, 2) + ':' + padding(D, 2) + ' ' + padding(h, 2) + ':' + padding(m, 2)
+}
+
+function padding(num, digit) {
+    return ((new Array(digit)).join(" ") + num).substr(-digit)
+}
