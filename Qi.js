@@ -989,7 +989,7 @@ function dayFormat(d) {
 }
 
 function padding(num, digit, c) {
-    return ((new Array(digit)).join(c || " ") + num).substr(-digit)
+    return ((new Array(digit)).join(arguments.length === 3 ? c : " ") + num).substr(-digit)
 }
 
 (function() {
