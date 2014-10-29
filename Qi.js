@@ -981,11 +981,15 @@ function dayFormat(d) {
         h = d.getHours(),
         m = d.getMinutes();
 
-    return padding(Y, 4) + '/' + padding(M, 2) + ':' + padding(D, 2) + ' ' + padding(h, 2) + ':' + padding(m, 2)
+    return padding(Y, 4, 0) + '/' +
+        padding(M, 2, 0) + ':' +
+        padding(D, 2, 0) + ' ' +
+        padding(h, 2, 0) + ':' +
+        padding(m, 2, 0)
 }
 
-function padding(num, digit) {
-    return ((new Array(digit)).join(" ") + num).substr(-digit)
+function padding(num, digit, c) {
+    return ((new Array(digit)).join(c || " ") + num).substr(-digit)
 }
 
 (function() {
