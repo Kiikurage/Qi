@@ -1111,7 +1111,7 @@ function padding(num, digit, c) {
     };
 
     _.fetchWithoutToken = function(url, option) {
-        return fetchCore(url, option);
+        return fetchCore(url, option || {});
     };
 
     function fetchCore(url, option) {
