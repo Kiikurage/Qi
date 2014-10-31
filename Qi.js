@@ -1110,6 +1110,10 @@ function padding(num, digit, c) {
         return fetchCore(url, option);
     };
 
+    _.fetchWithoutToken = function(url, option) {
+        return fetchCore(url, option);
+    };
+
     function fetchCore(url, option) {
         if (option.urlParams) {
             url = url + '?' + encodeURLParams(option.urlParams);
@@ -1124,6 +1128,7 @@ function padding(num, digit, c) {
         return fetch(url, option)
     }
 }());
+
 
 function User(data) {
     if (!(this instanceof User)) {
@@ -1327,7 +1332,7 @@ Item.search = function(query) {
 
 Item.new = function() {
     return _
-        .fetch(Url.ITEMS)
+        .fetchWithoutToken(Url.ITEMS)
         .then(function(res) {
             return res.json();
         })

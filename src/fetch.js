@@ -28,6 +28,10 @@
         return fetchCore(url, option);
     };
 
+    _.fetchWithoutToken = function(url, option) {
+        return fetchCore(url, option);
+    };
+
     function fetchCore(url, option) {
         if (option.urlParams) {
             url = url + '?' + encodeURLParams(option.urlParams);

@@ -90,7 +90,7 @@ Item.search = function(query) {
 
 Item.new = function() {
     return _
-        .fetch(Url.ITEMS)
+        .fetchWithoutToken(Url.ITEMS)
         .then(function(res) {
             return res.json();
         })
