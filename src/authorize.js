@@ -52,6 +52,11 @@
         }
     };
 
+    Qi.initWithToken = function(authToken) {
+        token = authToken;
+        status = Status.AUTHORIZED;
+    };
+
     _.getToken = function() {
         return token;
     };

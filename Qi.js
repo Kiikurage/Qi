@@ -1046,10 +1046,16 @@ function padding(num, digit, c) {
         }
     };
 
+    Qi.initWithToken = function(authToken) {
+        token = authToken;
+        status = Status.AUTHORIZED;
+    };
+
     _.getToken = function() {
         return token;
     };
 }());
+
 
 (function() {
     _.fetch = function(url, option) {
