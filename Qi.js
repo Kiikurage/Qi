@@ -905,6 +905,8 @@ requireModule('promise/polyfill').polyfill();
 (function(exports) {
 var HOST = 'https://qiita.com/api/v1';
 
+var LOCALSTORAGE_KEY = '_Qi__access_token__'
+
 var Param = {
     USERNAME: '{{username}}',
     TAGNAME: '{{tagname}}',
@@ -938,6 +940,7 @@ var Status = {
     PENDING: 2,
     AUTHORIZED: 3
 };
+
 var
         Qi = {}, //public object
         _ = {}; //protexted object
@@ -1049,6 +1052,26 @@ function padding(num, digit, c) {
     Qi.initWithToken = function(authToken) {
         token = authToken;
         status = Status.AUTHORIZED;
+    };
+
+    Qi.saveToken = function() {
+        if (this.status !== Status.AUTHORIZED) {
+            throw new Error('Not authorized.');
+            return false
+        }
+
+        localStorage.setItem(LOCALSTORAGE_KEY, token);
+    };
+
+    Qi.initWithLocalStorage = function() {
+        token = localStorage.getItem(LOCALSTORAGE_KEY);
+        if (token) {
+            this.status = Status.AUTHORIZED
+        } else {
+            this.status = Status.NOT_AUTHORIZED
+        }
+
+        return this.status === Status.AUTHORIZED
     };
 
     _.getToken = function() {

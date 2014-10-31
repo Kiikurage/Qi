@@ -1,5 +1,7 @@
 var HOST = 'https://qiita.com/api/v1';
 
+var LOCALSTORAGE_KEY = '_Qi__access_token__'
+
 var Param = {
     USERNAME: '{{username}}',
     TAGNAME: '{{tagname}}',

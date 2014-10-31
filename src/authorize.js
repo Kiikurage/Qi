@@ -57,6 +57,26 @@
         status = Status.AUTHORIZED;
     };
 
+    Qi.saveToken = function() {
+        if (this.status !== Status.AUTHORIZED) {
+            throw new Error('Not authorized.');
+            return false
+        }
+
+        localStorage.setItem(LOCALSTORAGE_KEY, token);
+    };
+
+    Qi.initWithLocalStorage = function() {
+        token = localStorage.getItem(LOCALSTORAGE_KEY);
+        if (token) {
+            this.status = Status.AUTHORIZED
+        } else {
+            this.status = Status.NOT_AUTHORIZED
+        }
+
+        return this.status === Status.AUTHORIZED
+    };
+
     _.getToken = function() {
         return token;
     };
