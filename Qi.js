@@ -1325,6 +1325,19 @@ Item.search = function(query) {
     //TODO:Next
 };
 
+Item.new = function() {
+    return _
+        .fetch(Url.ITEMS)
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(jsons) {
+            return jsons.map(Item);
+        })
+
+    //TODO:Next
+};
+
 Item.getByTag = function(tag) {
     if (!tag) {
         throw new Error('"Item.getByTag" must be passed one parameter');
@@ -1370,6 +1383,7 @@ Item.prototype.update = function() {
             return self
         });
 }
+
 
 function Comment(data) {
     if (!(this instanceof Comment)) {
