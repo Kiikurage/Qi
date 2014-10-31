@@ -19,9 +19,11 @@
                 }
             })
             .then(function(res) {
+                console.log(res);
                 return res.json();
             })
             .then(function(json) {
+                console.log(json);
                 token = json.token;
                 status = Status.AUTHORIZED;
                 authorizingPromise = null;
@@ -58,7 +60,7 @@
     };
 
     Qi.saveToken = function() {
-        if (this.status !== Status.AUTHORIZED) {
+        if (status !== Status.AUTHORIZED) {
             throw new Error('Not authorized.');
             return false
         }
@@ -69,12 +71,12 @@
     Qi.initWithLocalStorage = function() {
         token = localStorage.getItem(LOCALSTORAGE_KEY);
         if (token) {
-            this.status = Status.AUTHORIZED
+            status = Status.AUTHORIZED
         } else {
-            this.status = Status.NOT_AUTHORIZED
+            status = Status.NOT_AUTHORIZED
         }
 
-        return this.status === Status.AUTHORIZED
+        return status === Status.AUTHORIZED
     };
 
     _.getToken = function() {
