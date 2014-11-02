@@ -1264,8 +1264,8 @@ function Item(data) {
     this.url = data.url || '';
     this.gistUrl = data.gist_url || '';
     this.tweet = data.tweet || false;
-    this.private = data.tweet || false;
-    this.stocked = data.tweet || false;
+    this.private = data.private || false;
+    this.stocked = data.stocked || false;
     this.comments = data.comments ? data.comments.map(Qi.Comment) : [];
 
     this.created.word2 = this.created.date ? dayFormat(this.created.date) : '';
