@@ -17,6 +17,8 @@ function Item(data) {
     this.updateLocal(data);
 }
 
+Item.localItems = {};
+
 Item.prototype.updateLocal = function(data) {
     this.id = data.id || 0;
     this.uuid = data.uuid || '';
