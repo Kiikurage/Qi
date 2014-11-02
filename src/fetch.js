@@ -37,11 +37,8 @@
             url = url + '?' + encodeURLParams(option.urlParams);
         }
 
-        option = extend(option, {
-            headers: {
-                'Access-Control-Expose-Headers': 'Link'
-            }
-        });
+        // option = extend(option, {
+        // });
 
         return fetch(url, option)
     }
