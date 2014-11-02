@@ -3,8 +3,21 @@ function Item(data) {
         return new Item(data)
     }
 
-    data = data || {};
+    if (!(data)) {
+        throw new Error('Item constructor must be called with data object.');
+    }
 
+    var localItem = Item.localItems[data.uuid];
+    if (localItem) {
+        localItem.updateLocal(data);
+        return localItem;
+    }
+
+    Item.localItems[data.uuid] = this;
+    this.updateLocal(data);
+}
+
+Item.prototype.updateLocal = function(data) {
     this.id = data.id || 0;
     this.uuid = data.uuid || '';
     this.user = data.user ? new User(data.user) : null;
