@@ -50,6 +50,8 @@ Item.prototype.updateLocal = function(data) {
 Qi.Item = Item;
 
 Item.prototype.stock = function() {
+    this.stocked = true;
+
     return _
         .fetch(Url.ITEMS_STOCK
             .replace(Param.UUID, this.uuid), {
@@ -59,9 +61,15 @@ Item.prototype.stock = function() {
             this.stocked = true;
             this.stockCount++;
         })
+        .catch(function(err) {
+            this.stocked = false;
+            throw err
+        })
 };
 
 Item.prototype.unstock = function() {
+    this.stocked = false;
+
     return _
         .fetch(Url.ITEMS_STOCK
             .replace(Param.UUID, this.uuid), {
@@ -70,6 +78,10 @@ Item.prototype.unstock = function() {
         .then(function() {
             this.stocked = false;
             this.stockCount--;
+        })
+        .catch(function(err) {
+            this.stocked = true;
+            throw err
         })
 };
 
