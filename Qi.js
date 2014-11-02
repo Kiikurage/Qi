@@ -1281,6 +1281,7 @@ Item.prototype.stock = function() {
             })
         .then(function(res) {
             this.stocked = true;
+            this.stockCount++;
             return res
         })
 };
@@ -1293,6 +1294,7 @@ Item.prototype.unstock = function() {
             })
         .then(function(res) {
             this.stocked = false;
+            this.stockCount--;
             return res
         })
 };
