@@ -40,10 +40,9 @@ Item.prototype.stock = function() {
             .replace(Param.UUID, this.uuid), {
                 method: 'PUT'
             })
-        .then(function(res) {
+        .then(function() {
             this.stocked = true;
             this.stockCount++;
-            return res
         })
 };
 
@@ -53,10 +52,9 @@ Item.prototype.unstock = function() {
             .replace(Param.UUID, this.uuid), {
                 method: 'DELETE'
             })
-        .then(function(res) {
+        .then(function() {
             this.stocked = false;
             this.stockCount--;
-            return res
         })
 };
 
