@@ -1,7 +1,7 @@
 #Qi.js
 
 Qiita API のJavascript向けラッパーライブラリ(開発中)
-
+(2014/11/13追記) Access-Control ヘッダ対応きた！
 v0.0
 
 ##インストール
@@ -29,3 +29,4 @@ bower install qi-js
 
 - Qiita API v2.0 は全体的にAccess-Control-Allow-Originが指定されておらず、ブラウザからのアクセスは不可能
 - ページングを行うにはレスポンスのLinkヘッダを参照する必要があるが、`Access-Control-Expose-Headers:Link`がレスポンスに設定されておらず、アクセス出来ない。
+

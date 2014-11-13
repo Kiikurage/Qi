@@ -1,20 +1,11 @@
-//@include ../bower_components/es6-promise/promise.js
-//@include ../bower_components/fetch/fetch.js
+(function(global) {
+    var HOST = 'https://qiita.com',
+        _ = {};
 
-(function(exports) {
-    //@include ./definitions.js
+    //@include request.js
+    //@include auth.js
+    //@include item.js
+    //@include comment.js
 
-    var
-        Qi = {}, //public object
-        _ = {}; //protexted object
-
-    //@include ./util.js
-    //@include ./authorize.js
-    //@include ./fetch.js
-    //@include ./user.js
-    //@include ./item.js
-    //@include ./comment.js
-
-    exports.Qi = Qi;
-
+    global.Qi = _;
 }(this));
