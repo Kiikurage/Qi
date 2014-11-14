@@ -70,6 +70,17 @@ Qi.updateCommentById = function (id, body) {
 };
 
 /**
+ * 特定の投稿へのコメント一覧を取得する
+ * @param {string} item_id 投稿ID
+ * @return {Promise<Iterator<[Comment]>>} コメント一覧
+ */
+Qi.getCommentsByItemId = function (item_id) {
+    return Iterator.iterate(HOST + ' /api/v2/items/' + item_id + '/comments', function (res) {
+        return res.json().map(Comment)
+    });
+};
+
+/**
  * 指定されたコメントにThankをつける
  * @param {string} id コメントID
  * @returns {Promise<Response>} サーバーからのレスポンス

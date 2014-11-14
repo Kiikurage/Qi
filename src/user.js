@@ -23,19 +23,19 @@ function User(data) {
         return data
     }
 
-    this.description = data.description || '';
-    this.facebook_id = data.facebook_id || '';
-    this.followees_count = data.followees_count || 0;
-    this.followers_count = data.followers_count || 0;
-    this.id = data.id || '';
-    this.items_count = data.items_count || 0;
-    this.linkedin_id = data.linkedin_id || '';
-    this.location = data.location || '';
-    this.name = data.name || '';
-    this.organization = data.organization || '';
-    this.profile_image_url = data.profile_image_url || '';
-    this.twitter_screen_name = data.twitter_screen_name || '';
-    this.website_url = data.website_url || '';
+    this.description = data.description || null;
+    this.facebook_id = data.facebook_id || null;
+    this.followees_count = data.followees_count || null;
+    this.followers_count = data.followers_count || null;
+    this.id = data.id || null;
+    this.items_count = data.items_count || null;
+    this.linkedin_id = data.linkedin_id || null;
+    this.location = data.location || null;
+    this.name = data.name || null;
+    this.organization = data.organization || null;
+    this.profile_image_url = data.profile_image_url || null;
+    this.twitter_screen_name = data.twitter_screen_name || null;
+    this.website_url = data.website_url || null;
 }
 
 /**
@@ -118,13 +118,12 @@ User.prototype.website_url;
 
 /**
  * すべてのユーザーの一覧を取得する
- * @returns {Promise<[User]>} すべてのユーザーの一覧
+ * @returns {Promise<Iterator<[User]>>} すべてのユーザーの一覧
  */
 Qi.getUsers = function () {
-    return Qi.get(HOST + '/api/v2/users', null, null)
-        .then(function (res) {
-            return res.json().map(User);
-        })
+    return Iterator.iterate(HOST + '/api/v2/users', function (res) {
+        return res.json().map(User);
+    })
 };
 
 /**
@@ -143,7 +142,7 @@ Qi.getUserById = function (id) {
  * アクセストークンに紐付いたユーザーを取得する
  * @returns {Promise<User>} ユーザー
  */
-Qi.getUserById = function () {
+Qi.getTokenUser = function () {
     return Qi.get(HOST + '/api/v2/authenticated_user', null, null)
         .then(function (res) {
             return User(res.json())
@@ -153,13 +152,12 @@ Qi.getUserById = function () {
 /**
  * 特定のユーザーがフォローしているユーザーを取得する
  * @param {string} id ユーザーID
- * @returns {Promise<[User]>} ユーザー
+ * @returns {Promise<Iterator<[User]>>} ユーザー
  */
 Qi.getFolloweesById = function (id) {
-    return Qi.get(HOST + '/api/v2/users/' + id + '/followees', null, null)
-        .then(function (res) {
-            return res.json().map(User)
-        })
+    return Iterator.iterate(HOST + '/api/v2/users/' + id + '/followees', function (res) {
+        return res.json().map(User)
+    })
 };
 
 /**
@@ -168,10 +166,31 @@ Qi.getFolloweesById = function (id) {
  * @returns {Promise<[User]>} ユーザー
  */
 Qi.getFollowersById = function (id) {
-    return Qi.get(HOST + '/api/v2/users/' + id + '/followers', null, null)
-        .then(function (res) {
-            return res.json().map(User)
-        })
+    return Iterator.iterate(HOST + '/api/v2/users/' + id + '/followers', function (res) {
+        return res.json().map(User)
+    })
+};
+
+/**
+ * 特定のユーザーの投稿一覧を取得する
+ * @param {string} user_id ユーザー
+ * @returns {Promise<Iterator<[Item]>>} ユーザー
+ */
+Qi.getItemsByUser = function (user_id) {
+    return Iterator.iterate(HOST + '/api/v2/users/' + user_id + '/items', function (res) {
+        return res.json().map(Item)
+    })
+};
+
+/**
+ * 特定のユーザーがストックした投稿一覧を取得する
+ * @param {string} user_id ユーザー
+ * @returns {Promise<Iterator<[Item]>>} ユーザー
+ */
+Qi.getItemsByUser = function (user_id) {
+    return Iterator.iterate(HOST + '/api/v2/users/' + user_id + '/stockes', function (res) {
+        return res.json().map(Item)
+    })
 };
 
 Qi.User = User;

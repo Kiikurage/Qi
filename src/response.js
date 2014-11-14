@@ -1,6 +1,7 @@
 function Response(xhr) {
-    this.header = parseHeader(xhr.getAllResponseHeaders());
+    this.headers = parseHeader(xhr.getAllResponseHeaders());
     this.body = xhr.responseText;
+    this.xhr = xhr;
 }
 
 Response.prototype.json = function () {

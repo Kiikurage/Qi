@@ -46,13 +46,12 @@ Tag.prototype.items_count;
 
 /**
  * すべてのタグ一覧を取得する
- * @returns {Promise<[Tag]>} タグの配列
+ * @returns {Promise<Iterator<[Tag]>>} タグの配列
  */
 Qi.getTags = function () {
-    return Qi.get(HOST + '/api/v2/tags/', null, null)
-        .then(function (res) {
-            return res.json().map(Tag)
-        })
+    return Iterator.iterate(HOST + '/api/v2/tags/', function (res) {
+        return res.json().map(Tag)
+    })
 };
 
 /**
@@ -67,13 +66,24 @@ Qi.getTag = function (id) {
 /**
  * 特定のユーザーがフォローしているタグ一覧を取得する
  * @param {string} user_id ユーザーid
- * @returns {Promise<[Tag]>} タグの配列
+ * @returns {Promise<Iterator<[Tag]>>} タグの配列
  */
 Qi.getFollowingTags = function (user_id) {
-    return Qi.get(HOST + '/api/v2/comments/' + id + '/following_tags')
-        .then(function (res) {
-            return res.json().map(Tag)
-        })
+    return Iterator.iterate(HOST + '/api/v2/comments/' + user_id + '/following_tags', function (res) {
+        return res.json().map(Tag)
+    })
 };
+
+/**
+ * 特定のタグに紐付けられた投稿一覧を取得する
+ * @param {string} tag_id タグID
+ * @returns {Promise<Iterator<[Item]>>} 投稿
+ */
+Qi.getItemsByTag = function (tag_id) {
+    return Iterator.iterate(HOST + '/api/v2/tags/' + tag_id + '/id', function (data) {
+        return data.json().map(Item);
+    })
+};
+
 
 Qi.Tag = Tag;

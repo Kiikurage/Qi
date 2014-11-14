@@ -261,8 +261,9 @@ Qi.extend = function (target, opt_srces) {
 };
 
 function Response(xhr) {
-    this.header = parseHeader(xhr.getAllResponseHeaders());
+    this.headers = parseHeader(xhr.getAllResponseHeaders());
     this.body = xhr.responseText;
+    this.xhr = xhr;
 }
 
 Response.prototype.json = function () {
@@ -286,31 +287,296 @@ function parseHeader(text) {
 }
 
 
-function Item() {
-    this.comments = [];
+/**
+ * イテレーション可能なリクエストのラッパークラス
+ * @param {Object} params 各種パラメータ
+ * @constructor
+ */
+function Iterator(res, data, delegate) {
+    if (!(this instanceof Iterator)) {
+        return new Iterator(res, data)
+    }
+
+    this.data = data || null;
+    this.delegate = delegate;
+
+    console.log(res.xhr.getResponseHeader('Link'));
 }
 
-Item.prototype.body = 
+
+/**
+ * 先頭の要素を呼び出すURL
+ * @type {string}
+ */
+Iterator.prototype.firstURL;
+
+/**
+ * 前の要素を呼び出すURL
+ * @type {string}
+ */
+Iterator.prototype.prevURL;
+
+/**
+ * 次の要素を呼び出すURL
+ * @type {string}
+ */
+Iterator.prototype.nextURL;
+
+/**
+ * 末尾の要素を呼び出すURL
+ * @type {string}
+ */
+Iterator.prototype.lastURL;
+
+/**
+ * イテレータの値
+ * @type {*}
+ */
+Iterator.prototype.data;
+
+/**
+ * 現在のページ数
+ * @type {number}
+ */
+Iterator.prototype.now;
+
+/**
+ * 総ページ数
+ * @type {number}
+ */
+Iterator.prototype.total;
+
+/**
+ * 処理の委譲先
+ * @type {function}
+ */
+Iterator.prototype.delegate;
+
+/**
+ * 最初の要素を呼び出す
+ * @returns {Promise<Iterator>} 最初の要素を表すイテレータ
+ */
+Iterator.prototype.first = function () {
+    return this.iterate(this.firstURL)
+};
+
+/**
+ * 前の要素を呼び出す
+ * @returns {Promise<Iterator>} 前の要素を表すイテレータ
+ */
+Iterator.prototype.prev = function () {
+    return this.iterate(this.prevURL)
+};
+
+/**
+ * 次の要素を呼び出す
+ * @returns {Promise<Iterator>} 次の要素を表すイテレータ
+ */
+Iterator.prototype.next = function () {
+    return this.iterate(this.nextURL)
+};
+
+/**
+ * 最後の要素を呼び出す
+ * @returns {Promise<Iterator>} 最後の要素を表すイテレータ
+ */
+Iterator.prototype.last = function () {
+    return this.iterate(this.lastURL)
+};
+
+/**
+ * イテレーションを行う
+ * @param {string} url 移動先の要素のURL
+ * @param {function} delegate 委譲先の関数
+ * @returns {Promise<Iterator>} 移動先の要素を表すイテレータ
+ */
+Iterator.iterate = function (url, delegate) {
+    if (url === null) {
+        throw new Error('Can not iterate more.');
+    }
+
+    return Qi.get(url)
+        .then(function (res) {
+            return new Iterator(res, delegate(res), delegate);
+        })
+};
+
+/**
+ * 投稿を表すクラス
+ * @param {string} data.body;
+ * @param {boolean} data.coediting;
+ * @param {string} data.id;
+ * @param {boolean} data.private;
+ * @param {[Tag]} data.tags;
+ * @param {string} data.title;
+ * @param {User} data.user;
+ * @constructor
+ */
+function Item(data) {
+    if (!(this instanceof Item)) {
+        return new Item(data)
+    }
+    if (data instanceof Item) {
+        return data
+    }
+
+    this.body = data.body || null;
+    this.coediting = typeof data.coediting === 'boolean' ? data.coediting : false;
+    this.id = data.id || null;
+    this.private = typeof data.private === 'boolean' ? data.private : false;
+    this.tags = data.tags instanceof Array ? data.tags.map(Tag) : [];
+    this.title = data.title || null;
+    this.user = data.user ? User(data.user) : null;
+}
+
+/**
+ * 投稿の本文
+ * @type {string}
+ */
+Item.prototype.body;
+
+/**
+ * 未対応
+ * @type {boolean}
+ */
+Item.prototype.coediting;
+
+/**
+ * 作成された日時
+ * @type {Date}
+ */
+Item.prototype.created_at;
+
+/**
+ * リソースを特定するためのID
+ * @type {string}
+ */
+Item.prototype.id;
+
+/**
+ * 未対応
+ * @type {boolean}
+ */
+Item.prototype.private;
+
+/**
+ * 紐付けられたタグ
+ * @type {[tags]}
+ */
+Item.prototype.tags;
+
+/**
+ * タイトル
+ * @type {string}
+ */
+Item.prototype.title;
+
+/**
+ * 投稿者
+ * @type {User}
+ */
+Item.prototype.user;
+
+/**
+ * 新着順にすべての投稿一覧を取得する
+ * @returns {Promise<Iterator<[Item]>>} 投稿一覧
+ */
+Qi.getItems = function () {
+    return Iterator.iterate(HOST + '/api/v2/items', function (res) {
+        return res.json().map(Item);
+    })
+};
+
+/**
+ * 新しい投稿を作成する(POST /api/v2/items)
+ */
+Qi.createItem = function () {
+    //TODO: Implement
+    throw new Error('N.I.Y.');
+};
+
+/**
+ * 特定の投稿を取得する
+ * @param {string} id 投稿ID
+ * @returns {Promise<Item>} 投稿
+ */
+Qi.getItemById = function (id) {
+    return Qi.get(HOST + '/api/v2/items/' + id, null, null)
+        .then(function (data) {
+            return Item(data.json());
+        })
+};
+
+/**
+ * 特定の投稿を編集する(PATCH /api/v2/items/:id
+ */
+Qi.updateItem = function () {
+    //TODO: Implement
+    throw new Error('N.I.Y.');
+};
+
+/**
+ * 特定の投稿を削除する(DELETE /api/v2/items/:id
+ */
+Qi.deleteItem = function () {
+    //TODO: Implement
+    throw new Error('N.I.Y.');
+};
+
+/**
+ * 特定の投稿をストックする
+ * @param {string} item_id 投稿ID
+ * @return {Promise<Response>} サーバーからのレスポンス
+ */
+Qi.addStock = function (item_id) {
+    Qi.put(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
+};
+
+/**
+ * 特定の投稿をストックから取り除く
+ * @param {string} item_id 投稿ID
+ * @return {Promise<Response>} サーバーからのレスポンス
+ */
+Qi.deleteStock = function (item_id) {
+    Qi.delete(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
+};
+
+/**
+ * 特定の投稿に「いいね」をつける
+ * @param {string} item_id 投稿ID
+ * @return {Promise<Response>} サーバーからのレスポンス
+ */
+Qi.addStock = function (item_id) {
+    Qi.put(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
+};
+
+/**
+ * 特定の投稿への「いいね」を取り消す
+ * @param {string} item_id 投稿ID
+ * @return {Promise<Response>} サーバーからのレスポンス
+ */
+Qi.deleteStock = function (item_id) {
+    Qi.delete(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
+};
+
 /**
  * 投稿に寄せられたコメント一覧を取得する
- * @returns {Promise<[Comment]>} コメント一覧
+ * @returns {Promise<Iterator<[Comment]>>} コメント一覧
  */
 Item.prototype.getComments = function () {
-    return Qi.get(HOST + '/api/v2/items/' + this.id + '/comments', null, null)
-        .then(function (res) {
-            return res.json().map(Comment);
-        });
+    return Iterator.iterate(HOST + '/api/v2/items/' + this.id + '/comments', function (res) {
+        return res.json().map(Comment);
+    });
 };
 
 /**
  * 投稿をストックしているユーザー一覧を取得する
- * @returns {Promise<[User]>} ストックしているユーザー
+ * @returns {Promise<Iterator<[User]>>} ストックしているユーザー
  */
 Item.prototype.getStockers = function () {
-    return Qi.get(HOST + '/api/v2/items/' + this.id + '/stockers', null, null)
-        .then(function (res) {
-            return res.json().map(User);
-        });
+    return Iterator.iterate(HOST + '/api/v2/items/' + this.id + '/stockers', function (res) {
+        return res.json().map(User);
+    });
 };
 
 Qi.Item = Item;
@@ -385,6 +651,17 @@ Qi.updateCommentById = function (id, body) {
     return Qi.patch(HOST + '/api/v2/comments/' + id, {
         body: body
     })
+};
+
+/**
+ * 特定の投稿へのコメント一覧を取得する
+ * @param {string} item_id 投稿ID
+ * @return {Promise<Iterator<[Comment]>>} コメント一覧
+ */
+Qi.getCommentsByItemId = function (item_id) {
+    return Iterator.iterate(HOST + ' /api/v2/items/' + item_id + '/comments', function (res) {
+        return res.json().map(Comment)
+    });
 };
 
 /**
@@ -488,19 +765,19 @@ function User(data) {
         return data
     }
 
-    this.description = data.description || '';
-    this.facebook_id = data.facebook_id || '';
-    this.followees_count = data.followees_count || 0;
-    this.followers_count = data.followers_count || 0;
-    this.id = data.id || '';
-    this.items_count = data.items_count || 0;
-    this.linkedin_id = data.linkedin_id || '';
-    this.location = data.location || '';
-    this.name = data.name || '';
-    this.organization = data.organization || '';
-    this.profile_image_url = data.profile_image_url || '';
-    this.twitter_screen_name = data.twitter_screen_name || '';
-    this.website_url = data.website_url || '';
+    this.description = data.description || null;
+    this.facebook_id = data.facebook_id || null;
+    this.followees_count = data.followees_count || null;
+    this.followers_count = data.followers_count || null;
+    this.id = data.id || null;
+    this.items_count = data.items_count || null;
+    this.linkedin_id = data.linkedin_id || null;
+    this.location = data.location || null;
+    this.name = data.name || null;
+    this.organization = data.organization || null;
+    this.profile_image_url = data.profile_image_url || null;
+    this.twitter_screen_name = data.twitter_screen_name || null;
+    this.website_url = data.website_url || null;
 }
 
 /**
@@ -583,13 +860,12 @@ User.prototype.website_url;
 
 /**
  * すべてのユーザーの一覧を取得する
- * @returns {Promise<[User]>} すべてのユーザーの一覧
+ * @returns {Promise<Iterator<[User]>>} すべてのユーザーの一覧
  */
 Qi.getUsers = function () {
-    return Qi.get(HOST + '/api/v2/users', null, null)
-        .then(function (res) {
-            return res.json().map(User);
-        })
+    return Iterator.iterate(HOST + '/api/v2/users', function (res) {
+        return res.json().map(User);
+    })
 };
 
 /**
@@ -608,7 +884,7 @@ Qi.getUserById = function (id) {
  * アクセストークンに紐付いたユーザーを取得する
  * @returns {Promise<User>} ユーザー
  */
-Qi.getUserById = function () {
+Qi.getTokenUser = function () {
     return Qi.get(HOST + '/api/v2/authenticated_user', null, null)
         .then(function (res) {
             return User(res.json())
@@ -618,13 +894,12 @@ Qi.getUserById = function () {
 /**
  * 特定のユーザーがフォローしているユーザーを取得する
  * @param {string} id ユーザーID
- * @returns {Promise<[User]>} ユーザー
+ * @returns {Promise<Iterator<[User]>>} ユーザー
  */
 Qi.getFolloweesById = function (id) {
-    return Qi.get(HOST + '/api/v2/users/' + id + '/followees', null, null)
-        .then(function (res) {
-            return res.json().map(User)
-        })
+    return Iterator.iterate(HOST + '/api/v2/users/' + id + '/followees', function (res) {
+        return res.json().map(User)
+    })
 };
 
 /**
@@ -633,21 +908,124 @@ Qi.getFolloweesById = function (id) {
  * @returns {Promise<[User]>} ユーザー
  */
 Qi.getFollowersById = function (id) {
-    return Qi.get(HOST + '/api/v2/users/' + id + '/followers', null, null)
-        .then(function (res) {
-            return res.json().map(User)
-        })
+    return Iterator.iterate(HOST + '/api/v2/users/' + id + '/followers', function (res) {
+        return res.json().map(User)
+    })
+};
+
+/**
+ * 特定のユーザーの投稿一覧を取得する
+ * @param {string} user_id ユーザー
+ * @returns {Promise<Iterator<[Item]>>} ユーザー
+ */
+Qi.getItemsByUser = function (user_id) {
+    return Iterator.iterate(HOST + '/api/v2/users/' + user_id + '/items', function (res) {
+        return res.json().map(Item)
+    })
+};
+
+/**
+ * 特定のユーザーがストックした投稿一覧を取得する
+ * @param {string} user_id ユーザー
+ * @returns {Promise<Iterator<[Item]>>} ユーザー
+ */
+Qi.getItemsByUser = function (user_id) {
+    return Iterator.iterate(HOST + '/api/v2/users/' + user_id + '/stockes', function (res) {
+        return res.json().map(Item)
+    })
 };
 
 Qi.User = User;
+
+/**
+ * タグを表すクラス
+ * @param {number} data.followers_count タグをフォローしているユーザー数
+ * @param {number} data.icon_url アイコン画像のURL
+ * @param {string} data.id タグを特定するための一意な名前
+ * @param {number} data.items_count タグが付けられた投稿の数
+ * @constructor
+ */
+function Tag(data) {
+    if (!(this instanceof Tag)) {
+        return new Tag(data)
+    }
+    if (data instanceof Tag) {
+        return data
+    }
+
+    this.followers_count = data.followers_count || 0;
+    this.icon_url = data.icon_url || null;
+    this.id = data.id || null;
+    this.items_count = data.items_count || 0;
+}
+
+/**
+ *  タグをフォローしているユーザー数
+ *  @type {number}
+ */
+Tag.prototype.followers_count;
+
+/**
+ *  アイコン画像のURL
+ *  @type {number}
+ */
+Tag.prototype.icon_url;
+
+/**
+ *  タグを特定するための一意な名前
+ *  @type {string}
+ */
+Tag.prototype.id;
+
+/**
+ *  タグが付けられた投稿の数
+ *  @type {number}
+ */
+Tag.prototype.items_count;
+
+/**
+ * すべてのタグ一覧を取得する
+ * @returns {Promise<Iterator<[Tag]>>} タグの配列
+ */
+Qi.getTags = function () {
+    return Iterator.iterate(HOST + '/api/v2/tags/', function (res) {
+        return res.json().map(Tag)
+    })
+};
+
+/**
+ * 指定されたタグを取得する
+ * @param {string} id タグid
+ * @returns {Promise<Tag>} タグ
+ */
+Qi.getTag = function (id) {
+    return Qi.get(HOST + '/api/v2/tags/' + id, null, null)
+};
+
+/**
+ * 特定のユーザーがフォローしているタグ一覧を取得する
+ * @param {string} user_id ユーザーid
+ * @returns {Promise<Iterator<[Tag]>>} タグの配列
+ */
+Qi.getFollowingTags = function (user_id) {
+    return Iterator.iterate(HOST + '/api/v2/comments/' + user_id + '/following_tags', function (res) {
+        return res.json().map(Tag)
+    })
+};
+
+/**
+ * 特定のタグに紐付けられた投稿一覧を取得する
+ * @param {string} tag_id タグID
+ * @returns {Promise<Iterator<[Item]>>} 投稿
+ */
+Qi.getItemsByTag = function (tag_id) {
+    return Iterator.iterate(HOST + '/api/v2/tags/' + tag_id + '/id', function (data) {
+        return data.json().map(Item);
+    })
+};
+
+
+Qi.Tag = Tag;
+
 global.Qi = Qi;
 }(this));
-
-var CLIENT_ID = 'c4139214b24f2d599e6d302cf380ab783f41483a',
-    CLIENT_SECRET = '11eb18233e0eb8b57868c82fed4fca580da984b1';
-
-Qi.init({
-    token: '82f40809d9c81666836a1694c4a2f3605f18f129',
-    clientId: CLIENT_ID,
-    clientSecret: CLIENT_SECRET
-});
