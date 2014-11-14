@@ -1,5 +1,4 @@
 function Response(xhr) {
-    console.log(xhr.getAllResponseHeaders());
     this.header = parseHeader(xhr.getAllResponseHeaders());
     this.body = xhr.responseText;
 }

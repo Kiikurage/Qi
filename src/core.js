@@ -117,7 +117,7 @@ Qi.get = function (url, param, headers) {
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
     }
 
-    return request.ajax('GET', url, headers, null)
+    return Qi.ajax('GET', url, headers, null)
 
 };
 

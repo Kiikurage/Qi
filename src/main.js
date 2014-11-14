@@ -4,7 +4,6 @@
 
     //@include core.js
     //@include response.js
-    //@include auth.js
     //@include item.js
     //@include comment.js
     //@include user.js

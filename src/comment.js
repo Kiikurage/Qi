@@ -1,6 +1,16 @@
+/**
+ * コメントを表すクラス
+ * @param {string} data.body コメント内容
+ * @param {string} data.id コメントを特定するID
+ * @param {User|Object} data.user 投稿者
+ * @constructor
+ */
 function Comment(data) {
     if (!(this instanceof Comment)) {
-        return new Comment(data);
+        return new Comment(data)
+    }
+    if (data instanceof Comment) {
+        return data
     }
 
     this.body = data.body || null;
@@ -15,7 +25,7 @@ function Comment(data) {
 Comment.prototype.body;
 
 /**
- *  リソースを特定するID
+ *  コメントを特定するID
  *  @type {string}
  */
 Comment.prototype.id;
