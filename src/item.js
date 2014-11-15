@@ -98,7 +98,7 @@ Qi.createItem = function () {
  * @returns {Promise<Item>} 投稿
  */
 Qi.getItemById = function (id) {
-    return Qi.get(HOST + '/api/v2/items/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/items/' + id, null, null)
         .then(function (data) {
             return Item(data.json());
         })
@@ -126,7 +126,7 @@ Qi.deleteItem = function () {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.addStock = function (item_id) {
-    Qi.put(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
+    Qi.httpPut(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
 };
 
 /**
@@ -135,7 +135,7 @@ Qi.addStock = function (item_id) {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.deleteStock = function (item_id) {
-    Qi.delete(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
+    Qi.httpDelete(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
 };
 
 /**
@@ -144,7 +144,7 @@ Qi.deleteStock = function (item_id) {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.addStock = function (item_id) {
-    Qi.put(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
+    Qi.httpPut(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
 };
 
 /**
@@ -153,7 +153,7 @@ Qi.addStock = function (item_id) {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.deleteStock = function (item_id) {
-    Qi.delete(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
+    Qi.httpDelete(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
 };
 
 /**

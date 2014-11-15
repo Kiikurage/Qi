@@ -1,8 +1,10 @@
 /**
  * 初期化を行う。すべてのAPIの前に呼び出す必要がある。
- * @param {string} params.clientId クライアントID
- * @param {string} params.clientSecret クライアントSecret
- * @param {string} [params.token=''] アクセストークン
+ * @param {{
+ *      clientId: string,
+ *      clientSecret: string,
+ *      token: string
+ * }} params 初期化パラメータ
  */
 Qi.init = function (params) {
     if (params.token) {
@@ -22,34 +24,36 @@ Qi.init = function (params) {
  * @type {string}
  * @private
  */
-Qi.clientId_ = null;
+Qi.clientId_;
 
 /**
  * クライアントSecret
  * @type {string}
  * @private
  */
-Qi.clientSecret_ = null;
+Qi.clientSecret_;
 
 /**
  * アクセストークン
  * @type {string}
  * @private
  */
-Qi.accessToken_ = null;
+Qi.accessToken_;
 
 /**
  * アプリの認証を行う
- * @param {boolean} [option.readQiita=true] read_qitaスコープを要求するか
- * @param {boolean} [option.writeQiita=true] write_qitaスコープを要求するか
- * @param {boolean} [option.newWindow=false] 認証画面を別画面で開くか
+ * @param {{
+ *      readQiita: boolean,
+ *      writeQiita: boolean,
+ *      newWindow: boolean
+ * }} [option] オプション
  */
 Qi.authorize = function (option) {
     option = Qi.extend({
         read: true,
         write: true,
         newWindow: false
-    });
+    }, option);
 
     var scopes = [],
         url;
@@ -76,7 +80,7 @@ Qi.authorize = function (option) {
  * @returns {Promise<Response>} プロミスオブジェクト
  */
 Qi.getToken = function (code) {
-    return Qi.post(HOST + '/api/v2/access_tokens', {
+    return Qi.httpPost(HOST + '/api/v2/access_tokens', {
         client_id: Qi.clientId_,
         client_secret: Qi.clientSecret_,
         code: code
@@ -92,9 +96,9 @@ Qi.getToken = function (code) {
  * @returns {Promise<Response>} プロミスオブジェクト
  */
 Qi.deleteToken = function (code) {
-    return Qi.delete(HOST + '/api/v2/access_tokens' + Qi.accessToken_)
+    return Qi.httpDelete(HOST + '/api/v2/access_tokens' + Qi.accessToken_)
         .then(function (res) {
-            Qi.accessToken_ = null;
+            Qi.accessToken_ = '';
             return res
         });
 };
@@ -107,7 +111,7 @@ Qi.deleteToken = function (code) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト}
  */
-Qi.get = function (url, param, headers) {
+Qi.httpGet = function (url, param, headers) {
     if (param) {
         url += '?' + Qi.encodeURIParam(param);
     }
@@ -117,7 +121,7 @@ Qi.get = function (url, param, headers) {
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
     }
 
-    return Qi.ajax('GET', url, headers, null)
+    return Qi.ajax('GET', url, headers, '')
 
 };
 
@@ -129,7 +133,7 @@ Qi.get = function (url, param, headers) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.post = function (url, param, headers) {
+Qi.httpPost = function (url, param, headers) {
     if (Qi.accessToken_) {
         headers = headers || {};
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
@@ -149,7 +153,7 @@ Qi.post = function (url, param, headers) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.put = function (url, param, headers) {
+Qi.httpPut = function (url, param, headers) {
     if (Qi.accessToken_) {
         headers = headers || {};
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
@@ -169,7 +173,7 @@ Qi.put = function (url, param, headers) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.patch = function (url, param, headers) {
+Qi.httpPatch = function (url, param, headers) {
     return Qi.ajax('PATCH', url, Qi.extend({
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -181,16 +185,15 @@ Qi.patch = function (url, param, headers) {
  * @param {string} url
  * @param {Object} [param] URLパラメータ
  * @param {Object} [headers] カスタムヘッダ
- *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.delete = function (url, param, headers) {
+Qi.httpDelete = function (url, param, headers) {
     if (Qi.accessToken_) {
         headers = headers || {};
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
     }
 
-    return Qi('DELETE', url, headers, null)
+    return Qi.ajax('DELETE', url, headers, '')
 };
 
 /**
@@ -198,8 +201,7 @@ Qi.delete = function (url, param, headers) {
  * @param {string} method 使用するHTTPメソッド
  * @param {string} url URL
  * @param {Object} [headers] ヘッダ
- * @param {Object} [body] 本文
- *
+ * @param {string} [body] 本文
  * @returns {Promise<Response>} プロミスオブジェクト
  */
 Qi.ajax = function (method, url, headers, body) {
@@ -229,7 +231,6 @@ Qi.ajax = function (method, url, headers, body) {
 /**
  * オブジェクトをURLパラメータ形式に変換する
  * @param {Object} obj 変換するオブジェクト
- *
  * @returns {string} 変換された文字列
  */
 Qi.encodeURIParam = function (obj) {
@@ -244,8 +245,7 @@ Qi.encodeURIParam = function (obj) {
  * オブジェクトのプロパティを拡張する
  * @param {Object} target コピー先オブジェクト
  * @param {...Object} [opt_srces] コピー元オブジェクト
- *
- * @returns {Object} targetで指定されたコピー先オブジェクト
+ * @returns {*} targetで指定されたコピー先オブジェクト
  */
 Qi.extend = function (target, opt_srces) {
     Array.prototype.slice.call(arguments, 1).forEach(function (src) {

@@ -60,7 +60,7 @@ Qi.getTags = function () {
  * @returns {Promise<Tag>} タグ
  */
 Qi.getTag = function (id) {
-    return Qi.get(HOST + '/api/v2/tags/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/tags/' + id, null, null)
 };
 
 /**

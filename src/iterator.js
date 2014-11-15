@@ -106,7 +106,7 @@ Iterator.iterate = function (url, delegate) {
         throw new Error('Can not iterate more.');
     }
 
-    return Qi.get(url)
+    return Qi.httpGet(url)
         .then(function (res) {
             return new Iterator(res, delegate(res), delegate);
         })

@@ -42,7 +42,7 @@ Comment.prototype.user;
  * @returns {Promise<Comment>} コメント
  */
 Qi.getCommentById = function (id) {
-    return Qi.get(HOST + '/api/v2/comments/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/comments/' + id, null, null)
         .then(function (res) {
             return Comment(res.json());
         });
@@ -54,7 +54,7 @@ Qi.getCommentById = function (id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.removeCommentById = function (id) {
-    return Qi.delete(HOST + '/api/v2/comments/' + id)
+    return Qi.httpDelete(HOST + '/api/v2/comments/' + id)
 };
 
 /**
@@ -64,7 +64,7 @@ Qi.removeCommentById = function (id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.updateCommentById = function (id, body) {
-    return Qi.patch(HOST + '/api/v2/comments/' + id, {
+    return Qi.httpPatch(HOST + '/api/v2/comments/' + id, {
         body: body
     })
 };
@@ -72,7 +72,7 @@ Qi.updateCommentById = function (id, body) {
 /**
  * 特定の投稿へのコメント一覧を取得する
  * @param {string} item_id 投稿ID
- * @return {Promise<Iterator<[Comment]>>} コメント一覧
+ * @return {Promise<Iterator<[Comment]>} コメント一覧
  */
 Qi.getCommentsByItemId = function (item_id) {
     return Iterator.iterate(HOST + ' /api/v2/items/' + item_id + '/comments', function (res) {
@@ -86,7 +86,7 @@ Qi.getCommentsByItemId = function (item_id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.setThankById = function (id) {
-    return Qi.put(HOST + '/api/v2/comments/' + id + '/thank')
+    return Qi.httpPut(HOST + '/api/v2/comments/' + id + '/thank')
 };
 
 /**
@@ -95,7 +95,7 @@ Qi.setThankById = function (id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.removeThankById = function (id) {
-    return Qi.delete(HOST + '/api/v2/comments/' + id + '/thank')
+    return Qi.httpDelete(HOST + '/api/v2/comments/' + id + '/thank')
 };
 
 /**

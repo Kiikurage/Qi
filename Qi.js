@@ -3,9 +3,11 @@
         Qi = {};
 /**
  * 初期化を行う。すべてのAPIの前に呼び出す必要がある。
- * @param {string} params.clientId クライアントID
- * @param {string} params.clientSecret クライアントSecret
- * @param {string} [params.token=''] アクセストークン
+ * @param {{
+ *      clientId: string,
+ *      clientSecret: string,
+ *      token: string
+ * }} params 初期化パラメータ
  */
 Qi.init = function (params) {
     if (params.token) {
@@ -25,34 +27,36 @@ Qi.init = function (params) {
  * @type {string}
  * @private
  */
-Qi.clientId_ = null;
+Qi.clientId_;
 
 /**
  * クライアントSecret
  * @type {string}
  * @private
  */
-Qi.clientSecret_ = null;
+Qi.clientSecret_;
 
 /**
  * アクセストークン
  * @type {string}
  * @private
  */
-Qi.accessToken_ = null;
+Qi.accessToken_;
 
 /**
  * アプリの認証を行う
- * @param {boolean} [option.readQiita=true] read_qitaスコープを要求するか
- * @param {boolean} [option.writeQiita=true] write_qitaスコープを要求するか
- * @param {boolean} [option.newWindow=false] 認証画面を別画面で開くか
+ * @param {{
+ *      readQiita: boolean,
+ *      writeQiita: boolean,
+ *      newWindow: boolean
+ * }} [option] オプション
  */
 Qi.authorize = function (option) {
     option = Qi.extend({
         read: true,
         write: true,
         newWindow: false
-    });
+    }, option);
 
     var scopes = [],
         url;
@@ -79,7 +83,7 @@ Qi.authorize = function (option) {
  * @returns {Promise<Response>} プロミスオブジェクト
  */
 Qi.getToken = function (code) {
-    return Qi.post(HOST + '/api/v2/access_tokens', {
+    return Qi.httpPost(HOST + '/api/v2/access_tokens', {
         client_id: Qi.clientId_,
         client_secret: Qi.clientSecret_,
         code: code
@@ -95,9 +99,9 @@ Qi.getToken = function (code) {
  * @returns {Promise<Response>} プロミスオブジェクト
  */
 Qi.deleteToken = function (code) {
-    return Qi.delete(HOST + '/api/v2/access_tokens' + Qi.accessToken_)
+    return Qi.httpDelete(HOST + '/api/v2/access_tokens' + Qi.accessToken_)
         .then(function (res) {
-            Qi.accessToken_ = null;
+            Qi.accessToken_ = '';
             return res
         });
 };
@@ -110,7 +114,7 @@ Qi.deleteToken = function (code) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト}
  */
-Qi.get = function (url, param, headers) {
+Qi.httpGet = function (url, param, headers) {
     if (param) {
         url += '?' + Qi.encodeURIParam(param);
     }
@@ -120,7 +124,7 @@ Qi.get = function (url, param, headers) {
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
     }
 
-    return Qi.ajax('GET', url, headers, null)
+    return Qi.ajax('GET', url, headers, '')
 
 };
 
@@ -132,7 +136,7 @@ Qi.get = function (url, param, headers) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.post = function (url, param, headers) {
+Qi.httpPost = function (url, param, headers) {
     if (Qi.accessToken_) {
         headers = headers || {};
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
@@ -152,7 +156,7 @@ Qi.post = function (url, param, headers) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.put = function (url, param, headers) {
+Qi.httpPut = function (url, param, headers) {
     if (Qi.accessToken_) {
         headers = headers || {};
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
@@ -172,7 +176,7 @@ Qi.put = function (url, param, headers) {
  *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.patch = function (url, param, headers) {
+Qi.httpPatch = function (url, param, headers) {
     return Qi.ajax('PATCH', url, Qi.extend({
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -184,16 +188,15 @@ Qi.patch = function (url, param, headers) {
  * @param {string} url
  * @param {Object} [param] URLパラメータ
  * @param {Object} [headers] カスタムヘッダ
- *
  * @returns {Promise<Response>} プロミスオブジェクト
  */
-Qi.delete = function (url, param, headers) {
+Qi.httpDelete = function (url, param, headers) {
     if (Qi.accessToken_) {
         headers = headers || {};
         headers.Authorization = 'Bearer ' + Qi.accessToken_;
     }
 
-    return Qi('DELETE', url, headers, null)
+    return Qi.ajax('DELETE', url, headers, '')
 };
 
 /**
@@ -201,8 +204,7 @@ Qi.delete = function (url, param, headers) {
  * @param {string} method 使用するHTTPメソッド
  * @param {string} url URL
  * @param {Object} [headers] ヘッダ
- * @param {Object} [body] 本文
- *
+ * @param {string} [body] 本文
  * @returns {Promise<Response>} プロミスオブジェクト
  */
 Qi.ajax = function (method, url, headers, body) {
@@ -232,7 +234,6 @@ Qi.ajax = function (method, url, headers, body) {
 /**
  * オブジェクトをURLパラメータ形式に変換する
  * @param {Object} obj 変換するオブジェクト
- *
  * @returns {string} 変換された文字列
  */
 Qi.encodeURIParam = function (obj) {
@@ -247,8 +248,7 @@ Qi.encodeURIParam = function (obj) {
  * オブジェクトのプロパティを拡張する
  * @param {Object} target コピー先オブジェクト
  * @param {...Object} [opt_srces] コピー元オブジェクト
- *
- * @returns {Object} targetで指定されたコピー先オブジェクト
+ * @returns {*} targetで指定されたコピー先オブジェクト
  */
 Qi.extend = function (target, opt_srces) {
     Array.prototype.slice.call(arguments, 1).forEach(function (src) {
@@ -260,16 +260,30 @@ Qi.extend = function (target, opt_srces) {
     return target;
 };
 
+/**
+ * サーバーからのレスポンスを表すクラス
+ * @param {XMLHttpRequest} xhr 通信で使用したXMLHttpRequestオブジェクト
+ * @constructor
+ */
 function Response(xhr) {
     this.headers = parseHeader(xhr.getAllResponseHeaders());
     this.body = xhr.responseText;
     this.xhr = xhr;
 }
 
+/**
+ * レスポンスをJSONとしてパースする
+ * @returns {Object} レスポンス
+ */
 Response.prototype.json = function () {
     return JSON.parse(this.body);
 };
 
+/**
+ * ヘッダをオブジェクトに変換する
+ * @param {string} text ヘッダ文字列
+ * @returns {Object} 変換されたオブジェクト
+ */
 function parseHeader(text) {
     var val = {};
 
@@ -395,7 +409,7 @@ Iterator.iterate = function (url, delegate) {
         throw new Error('Can not iterate more.');
     }
 
-    return Qi.get(url)
+    return Qi.httpGet(url)
         .then(function (res) {
             return new Iterator(res, delegate(res), delegate);
         })
@@ -501,7 +515,7 @@ Qi.createItem = function () {
  * @returns {Promise<Item>} 投稿
  */
 Qi.getItemById = function (id) {
-    return Qi.get(HOST + '/api/v2/items/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/items/' + id, null, null)
         .then(function (data) {
             return Item(data.json());
         })
@@ -529,7 +543,7 @@ Qi.deleteItem = function () {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.addStock = function (item_id) {
-    Qi.put(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
+    Qi.httpPut(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
 };
 
 /**
@@ -538,7 +552,7 @@ Qi.addStock = function (item_id) {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.deleteStock = function (item_id) {
-    Qi.delete(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
+    Qi.httpDelete(HOST + '/api/v2/items/' + item_id + '/stock', null, null)
 };
 
 /**
@@ -547,7 +561,7 @@ Qi.deleteStock = function (item_id) {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.addStock = function (item_id) {
-    Qi.put(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
+    Qi.httpPut(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
 };
 
 /**
@@ -556,7 +570,7 @@ Qi.addStock = function (item_id) {
  * @return {Promise<Response>} サーバーからのレスポンス
  */
 Qi.deleteStock = function (item_id) {
-    Qi.delete(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
+    Qi.httpDelete(HOST + '/api/v2/items/' + item_id + '/lgtm', null, null)
 };
 
 /**
@@ -626,7 +640,7 @@ Comment.prototype.user;
  * @returns {Promise<Comment>} コメント
  */
 Qi.getCommentById = function (id) {
-    return Qi.get(HOST + '/api/v2/comments/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/comments/' + id, null, null)
         .then(function (res) {
             return Comment(res.json());
         });
@@ -638,7 +652,7 @@ Qi.getCommentById = function (id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.removeCommentById = function (id) {
-    return Qi.delete(HOST + '/api/v2/comments/' + id)
+    return Qi.httpDelete(HOST + '/api/v2/comments/' + id)
 };
 
 /**
@@ -648,7 +662,7 @@ Qi.removeCommentById = function (id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.updateCommentById = function (id, body) {
-    return Qi.patch(HOST + '/api/v2/comments/' + id, {
+    return Qi.httpPatch(HOST + '/api/v2/comments/' + id, {
         body: body
     })
 };
@@ -656,7 +670,7 @@ Qi.updateCommentById = function (id, body) {
 /**
  * 特定の投稿へのコメント一覧を取得する
  * @param {string} item_id 投稿ID
- * @return {Promise<Iterator<[Comment]>>} コメント一覧
+ * @return {Promise<Iterator<[Comment]>} コメント一覧
  */
 Qi.getCommentsByItemId = function (item_id) {
     return Iterator.iterate(HOST + ' /api/v2/items/' + item_id + '/comments', function (res) {
@@ -670,7 +684,7 @@ Qi.getCommentsByItemId = function (item_id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.setThankById = function (id) {
-    return Qi.put(HOST + '/api/v2/comments/' + id + '/thank')
+    return Qi.httpPut(HOST + '/api/v2/comments/' + id + '/thank')
 };
 
 /**
@@ -679,7 +693,7 @@ Qi.setThankById = function (id) {
  * @returns {Promise<Response>} サーバーからのレスポンス
  */
 Qi.removeThankById = function (id) {
-    return Qi.delete(HOST + '/api/v2/comments/' + id + '/thank')
+    return Qi.httpDelete(HOST + '/api/v2/comments/' + id + '/thank')
 };
 
 /**
@@ -874,7 +888,7 @@ Qi.getUsers = function () {
  * @returns {Promise<User>} 特定のユーザー
  */
 Qi.getUserById = function (id) {
-    return Qi.get(HOST + '/api/v2/users/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/users/' + id, null, null)
         .then(function (res) {
             return User(res.json())
         })
@@ -885,7 +899,7 @@ Qi.getUserById = function (id) {
  * @returns {Promise<User>} ユーザー
  */
 Qi.getTokenUser = function () {
-    return Qi.get(HOST + '/api/v2/authenticated_user', null, null)
+    return Qi.httpGet(HOST + '/api/v2/authenticated_user', null, null)
         .then(function (res) {
             return User(res.json())
         })
@@ -999,7 +1013,7 @@ Qi.getTags = function () {
  * @returns {Promise<Tag>} タグ
  */
 Qi.getTag = function (id) {
-    return Qi.get(HOST + '/api/v2/tags/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/tags/' + id, null, null)
 };
 
 /**

@@ -132,7 +132,7 @@ Qi.getUsers = function () {
  * @returns {Promise<User>} 特定のユーザー
  */
 Qi.getUserById = function (id) {
-    return Qi.get(HOST + '/api/v2/users/' + id, null, null)
+    return Qi.httpGet(HOST + '/api/v2/users/' + id, null, null)
         .then(function (res) {
             return User(res.json())
         })
@@ -143,7 +143,7 @@ Qi.getUserById = function (id) {
  * @returns {Promise<User>} ユーザー
  */
 Qi.getTokenUser = function () {
-    return Qi.get(HOST + '/api/v2/authenticated_user', null, null)
+    return Qi.httpGet(HOST + '/api/v2/authenticated_user', null, null)
         .then(function (res) {
             return User(res.json())
         })
